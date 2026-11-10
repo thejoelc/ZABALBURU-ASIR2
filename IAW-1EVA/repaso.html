@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repaso PHP IAW</title>
+<style>
+:root{
+  --bg:#f6f7fb; --card:#ffffff; --text:#1d2330; --muted:#5f6b7d; --line:#dfe3ec;
+  --accent:#4f5bd5; --accent-soft:#e8eaff; --ok:#1f8f4e; --ok-soft:#e3f6ea;
+  --bad:#c93434; --bad-soft:#fde8e8; --code-bg:#f1f3f8; --code-text:#1d2330;
+  --hl-var:#a0368f; --hl-str:#1f7a3a; --hl-kw:#3446c4; --hl-com:#8a93a3; --hl-tag:#b25a00;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#13161d; --card:#1c2029; --text:#e6e9f0; --muted:#9aa4b5; --line:#2c3240;
+    --accent:#8f98ff; --accent-soft:#272c4a; --ok:#55c987; --ok-soft:#173326;
+    --bad:#ff7b7b; --bad-soft:#3a1d1f; --code-bg:#11141a; --code-text:#e6e9f0;
+    --hl-var:#e48be0; --hl-str:#8fd99b; --hl-kw:#9aa8ff; --hl-com:#6c7586; --hl-tag:#f2a65a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#13161d; --card:#1c2029; --text:#e6e9f0; --muted:#9aa4b5; --line:#2c3240;
+  --accent:#8f98ff; --accent-soft:#272c4a; --ok:#55c987; --ok-soft:#173326;
+  --bad:#ff7b7b; --bad-soft:#3a1d1f; --code-bg:#11141a; --code-text:#e6e9f0;
+  --hl-var:#e48be0; --hl-str:#8fd99b; --hl-kw:#9aa8ff; --hl-com:#6c7586; --hl-tag:#f2a65a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0 6px}
+h1{font-size:1.25rem;margin:0}
+.top small{color:var(--muted)}
+.theme{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:8px;padding:6px 10px;cursor:pointer}
+nav{display:flex;gap:6px;overflow-x:auto;padding:6px 0 10px;scrollbar-width:thin}
+nav button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--text);padding:7px 12px;border-radius:999px;cursor:pointer;font-size:.9rem}
+nav button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+main{padding:18px 0 60px}
+section{display:none}
+section.on{display:block}
+.intro{color:var(--muted);margin:0 0 14px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--text);padding:4px 10px;border-radius:999px;cursor:pointer;font-size:.85rem}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.score{margin-left:auto;font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.card h3{margin:0 0 6px;font-size:1rem}
+.tag{display:inline-block;font-size:.72rem;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin-bottom:6px}
+.q{font-weight:600;margin:2px 0 8px}
+pre{background:var(--code-bg);color:var(--code-text);border:1px solid var(--line);border-radius:8px;padding:10px 12px;overflow-x:auto;font:13.5px/1.45 Consolas,"Cascadia Code",Menlo,monospace;margin:8px 0;white-space:pre}
+code{font-family:Consolas,"Cascadia Code",Menlo,monospace;background:var(--code-bg);padding:1px 5px;border-radius:4px;font-size:.92em}
+pre code{background:none;padding:0}
+.v{color:var(--hl-var)} .s{color:var(--hl-str)} .k{color:var(--hl-kw);font-weight:600} .c{color:var(--hl-com);font-style:italic} .t{color:var(--hl-tag)}
+.opts{display:grid;gap:6px}
+.opt{text-align:left;border:1px solid var(--line);background:var(--card);color:var(--text);padding:8px 10px;border-radius:8px;cursor:pointer;font:inherit;font-family:Consolas,"Cascadia Code",Menlo,monospace;font-size:.9rem}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.opt.bad{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.opt:disabled{cursor:default}
+.exp{margin-top:8px;padding:8px 10px;border-radius:8px;background:var(--accent-soft);font-size:.92rem;display:none}
+.exp.show{display:block}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px}
+input[type=text]{flex:1 1 200px;min-width:0;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:14px Consolas,"Cascadia Code",Menlo,monospace}
+.btn{border:1px solid var(--accent);background:var(--accent);color:#fff;padding:7px 14px;border-radius:8px;cursor:pointer;font:inherit;font-size:.9rem}
+.btn.ghost{background:transparent;color:var(--accent)}
+.res{font-weight:600;font-size:.92rem}
+.res.ok{color:var(--ok)} .res.bad{color:var(--bad)}
+details{margin-top:8px}
+summary{cursor:pointer;color:var(--accent);font-weight:600}
+.done{display:flex;align-items:center;gap:6px;font-size:.9rem;color:var(--muted);margin-top:8px;cursor:pointer}
+ul.en{margin:6px 0;padding-left:20px}
+.flash{min-height:180px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;cursor:pointer;user-select:none}
+.flash .front{font-size:1.15rem;font-weight:600}
+.flash .back{margin-top:10px;display:none}
+.flash.flip .back{display:block}
+.flash pre{text-align:left;max-width:100%}
+.prog{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+.prog .card{margin:0}
+.big{font-size:1.6rem;font-weight:700}
+.meter{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:6px}
+.meter i{display:block;height:100%;background:var(--accent)}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div><h1>Repaso PHP · IAW UD2</h1><small>Solo lo dado en los ejercicios 1A → 5B</small></div>
+      <button class="theme" id="theme" title="Cambiar tema">◐ Tema</button>
+    </div>
+    <nav id="nav">
+      <button data-s="inicio" class="on">Inicio</button>
+      <button data-s="test">Test</button>
+      <button data-s="out">¿Qué imprime?</button>
+      <button data-s="fill">Completa</button>
+      <button data-s="err">Encuentra el error</button>
+      <button data-s="ex">Ejercicios examen</button>
+      <button data-s="cards">Tarjetas</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section id="inicio" class="on">
+  <p class="intro">Cómo usarlo: haz primero el <b>Test</b> y <b>¿Qué imprime?</b> para la teoría, luego <b>Completa</b> y <b>Encuentra el error</b>, y termina con los <b>Ejercicios de examen</b> escribiéndolos en XAMPP antes de mirar la solución. El progreso se guarda en este navegador.</p>
+  <div class="prog" id="prog"></div>
+  <div class="card">
+    <h3>Temas que entran</h3>
+    <ul class="en">
+      <li><b>Ej. 1</b> – Variables, <code>echo</code>/<code>print</code>, comillas, <code>\$</code>, concatenación <code>.</code> y <code>.=</code>, heredoc, operadores <code>+ - * / %</code></li>
+      <li><b>Ej. 2</b> – Formularios (text, number, select, optgroup, textarea, submit, reset, fieldset), GET/POST, <code>filter_input</code></li>
+      <li><b>Ej. 3</b> – <code>if / elseif / else</code>, <code>and or ! && ||</code>, validar vacíos/repetidos/faltantes, <code>trim</code>, <code>isset</code>, <code>getdate</code>, <code>str_pad</code>, meta refresh</li>
+      <li><b>Ej. 4</b> – <code>switch</code> (casos agrupados, <code>break</code>), letra del DNI, nota media, <code>round floor ceil (int)</code></li>
+      <li><b>Ej. 5</b> – <code>for</code>, <code>while</code>, <code>do…while</code>, listas generadas con bucles, bucles anidados, <code>sqrt</code>, primo, divisores, Fibonacci, formulario que se envía a sí mismo</li>
+    </ul>
+  </div>
+  <div class="row"><button class="btn ghost" id="reset">Borrar mi progreso</button></div>
+</section>
+
+<section id="test">
+  <p class="intro">Elige la respuesta. Se corrige al momento con explicación.</p>
+  <div class="bar" id="testbar"></div>
+  <div id="testlist"></div>
+</section>
+
+<section id="out">
+  <p class="intro">Escribe <b>exactamente</b> lo que se vería en el navegador (sin las etiquetas HTML). Los espacios no cuentan.</p>
+  <div class="bar"><span class="score" id="outscore"></span></div>
+  <div id="outlist"></div>
+</section>
+
+<section id="fill">
+  <p class="intro">Rellena el hueco <code>___</code> con lo que falta.</p>
+  <div class="bar"><span class="score" id="fillscore"></span></div>
+  <div id="filllist"></div>
+</section>
+
+<section id="err">
+  <p class="intro">Cada código tiene <b>un fallo</b>. Piénsalo antes de abrir la solución.</p>
+  <div id="errlist"></div>
+</section>
+
+<section id="ex">
+  <p class="intro">Ejercicios tipo examen, con el mismo estilo que los de clase. Hazlos en XAMPP y luego compara. Marca los que ya tengas.</p>
+  <div class="bar" id="exbar"></div>
+  <div id="exlist"></div>
+</section>
+
+<section id="cards">
+  <p class="intro">Pulsa la tarjeta para darle la vuelta.</p>
+  <div class="card flash" id="flash"><div class="front"></div><div class="back"></div></div>
+  <div class="row" style="justify-content:center">
+    <button class="btn ghost" id="prev">◀ Anterior</button>
+    <span id="fcount" class="res"></span>
+    <button class="btn ghost" id="shuf">Barajar</button>
+    <button class="btn" id="next">Siguiente ▶</button>
+  </div>
+</section>
+
+</main>
+
+<script>
+const R = String.raw;
+
+/* ======================= TEST (tipo test) ======================= */
+const MCQ = [
+ {t:"Básico", q:"¿Con qué símbolo empiezan las variables en PHP?", o:["$","@","&","#"], e:"Todas: $var1, $nombre, $nombre_completo..."},
+ {t:"Básico", q:"¿Qué etiqueta abre un bloque de código PHP?", o:["<?php","<php>","<script php>","<%"], e:"Se abre con <?php y se cierra con ?>"},
+ {t:"Básico", q:"¿Cuál es el operador para concatenar textos?", o:[".","+","&",","], e:"En PHP se concatena con el punto. El + es para sumar números."},
+ {t:"Básico", q:"¿Qué se ve en pantalla?", c:R`$nombre = "Ana";
+print 'Hola $nombre';`, o:["Hola $nombre","Hola Ana","Error","Hola"], e:"Las comillas SIMPLES no sustituyen variables."},
+ {t:"Básico", q:"Dentro de comillas dobles quieres que salga literalmente el texto $var1. ¿Qué escribes?", o:[R`\$var1`,"$$var1","{$var1}","($var1)"], e:"La barra invertida escapa el $. Lo usa el profe en el 1A: \"Contenido de la variable \\$var1: $var1\"."},
+ {t:"Básico", q:"Diferencia entre echo y print:", o:["echo admite varios valores separados por comas; print solo uno","print admite varios y echo solo uno","echo solo funciona con números","print no puede sacar HTML"], e:"echo 'Suma: ', $suma, \"<br />\"; → válido. Con print no."},
+ {t:"Básico", q:"$a = 7; $b = 2; ¿Cuánto vale $a % $b?", o:["1","3.5","3","14"], e:"% es el RESTO: 7 entre 2 = 3 y sobra 1."},
+ {t:"Básico", q:"$a = 7; $b = 2; ¿Cuánto vale $a / $b?", o:["3.5","3","1","4"], e:"/ es la división normal, puede dar decimales."},
+ {t:"Básico", q:"$nombre .= ' Ruiz'; es lo mismo que…", o:["$nombre = $nombre . ' Ruiz';","$nombre = ' Ruiz';","$nombre = $nombre + ' Ruiz';","$nombre == $nombre . ' Ruiz';"], e:".= concatena y asigna (como hace el profe en el 2B)."},
+ {t:"Básico", q:"Abriste con print <<<RDO. ¿Cómo se cierra?", o:["RDO; (en su propia línea)","</RDO>","END;","RDO (sin punto y coma)"], e:"Mismo identificador + punto y coma, solo en la línea."},
+ {t:"Básico", q:"Dentro de un heredoc, ¿se sustituyen las variables?", o:["Sí, como en comillas dobles","No, como en comillas simples","Solo los números","Solo si van entre llaves"], e:"Heredoc = comillas dobles multilínea. Para ver un $ literal usa \\$."},
+ {t:"Básico", q:"echo 'Total: ', $total; ¿Es correcto?", o:["Sí, echo admite varios valores separados por comas","No, hay que usar +","No, solo print admite comas","No, las comillas simples dan error"], e:"Lo usa el profe en el 1A."},
+ {t:"Básico", q:"$v = 3; echo \"Valor: \" . $v * 2; ¿Qué sale?", o:["Valor: 6","Valor: 32","Valor: 3 * 2","Error"], e:"La multiplicación se hace antes que la concatenación."},
+ {t:"Básico", q:"¿Qué hacen las tres? $i++;  $i += 1;  $i = $i + 1;", o:["Lo mismo: suman 1 a $i","Solo la primera vale en un for","La segunda suma 2","Ninguna cambia $i"], e:"El profe usa $i += 1 con el comentario // $i=$i+1  $i++"},
+
+ {t:"Formularios", q:"Formulario con method=\"post\". ¿Cómo recoges el campo name=\"edad\"?", o:['filter_input(INPUT_POST, "edad")','filter_input(INPUT_GET, "edad")','filter_input(POST, edad)','$edad = "edad";'], e:"El INPUT_... tiene que coincidir con el method del form."},
+ {t:"Formularios", q:"¿Qué atributo de un <input> usa PHP para recoger el dato?", o:["name","id","value","class"], e:"El id NO se envía. filter_input busca por el name."},
+ {t:"Formularios", q:"Diferencia principal entre GET y POST:", o:["GET envía los datos visibles en la URL; POST no","POST solo envía números","GET no funciona con listas","No hay ninguna"], e:"Con GET verás ?nombre=Pepe&cp=48001 en la barra de direcciones."},
+ {t:"Formularios", q:"En un <select>, ¿qué se envía al servidor?", o:["El value de la opción elegida","El texto visible de la opción","El label del optgroup","El id del select"], e:"Por eso en el 2B llega «ASIR» y no «Administración de Sistemas...». Si la opción no tiene value, se envía su texto."},
+ {t:"Formularios", q:"¿Para qué sirve <optgroup label=\"...\">?", o:["Agrupar opciones de una lista bajo un título","Hacer obligatoria la lista","Permitir elegir varias","Poner un valor por defecto"], e:"Ejercicio 2B: Informática y Comunicaciones / Comercio y Administración / Laboratorios."},
+ {t:"Formularios", q:"Cuadro de texto de tamaño 4 y como máximo 5 caracteres:", o:['size="4" maxlength="5"','size="5" maxlength="4"','width="4" max="5"','length="4" maxsize="5"'], e:"size = ancho visible; maxlength = caracteres que deja escribir."},
+ {t:"Formularios", q:"¿Qué hace <input type=\"reset\">?", o:["Limpia lo escrito/seleccionado en el formulario","Envía el formulario","Recarga el PHP","Borra los datos del servidor"], e:"El botón «Limpiar» del 2B."},
+ {t:"Formularios", q:"<textarea> de 10 filas y 40 columnas:", o:['rows="10" cols="40"','rows="40" cols="10"','height="10" width="40"','lines="10" chars="40"'], e:"rows = filas, cols = columnas."},
+ {t:"Formularios", q:"El campo existe pero el usuario lo dejó vacío. ¿Qué devuelve filter_input?", o:['"" (cadena vacía)',"null","0","false"], e:"Vacío = \"\". null es cuando el campo no existe."},
+ {t:"Formularios", q:"El name está mal escrito en el PHP (el campo no existe). ¿Qué devuelve filter_input?", o:["null",'"" (cadena vacía)',"0","Un error que para la página"], e:"null → isset() daría false."},
+ {t:"Formularios", q:"¿Qué hace el atributo action del <form>?", o:["Indica el fichero que recibe y procesa los datos","Indica si es GET o POST","Pone el texto del botón","Valida los datos"], e:"Si el nombre del fichero no coincide → error 404."},
+ {t:"Formularios", q:"En un formulario que se envía a sí mismo, ¿cómo sabes si ya se pulsó el botón?", o:['El submit tiene name="enviar" y compruebas isset($enviar)','Con getdate()','Mirando el action','Con trim($action)'], e:"La primera vez $enviar es null → no se muestra resultado."},
+
+ {t:"if", q:"¿Qué operador COMPARA si dos valores son iguales?", o:["==","=","!=","=>"], e:"= asigna. if ($a = $b) es un error típico (pasó en un 3B)."},
+ {t:"if", q:"and es equivalente a…", o:["&&","||","!","&"], e:"and = &&, or = ||, ! = no."},
+ {t:"if", q:"if ($n1 == 0 or $n2 == 0) es verdadero cuando…", o:["Al menos uno de los dos es 0","Los dos son 0","Ninguno es 0","Nunca"], e:"or: basta con que se cumpla una."},
+ {t:"if", q:"Ejercicio 3B: ¿en qué orden se comprueba?", o:["1º faltan datos, 2º repetidos, 3º el mayor","1º el mayor, 2º repetidos, 3º faltan","1º repetidos, 2º faltan, 3º el mayor","Da igual"], e:"Siempre primero los errores, al final el resultado."},
+ {t:"if", q:"Para LISTAR todos los datos que faltan (3C) se usan…", o:["Varios if independientes que van concatenando en una variable","Un if…elseif…elseif","Un switch con break","Un do…while"], e:"Con elseif se pararía en el primer dato que falte."},
+ {t:"if", q:"¿Qué hace trim($nombre)?", o:["Quita los espacios del principio y del final","Quita las vocales","Pasa a mayúsculas","Comprueba si existe"], e:"trim($nombre) == \"\" detecta también si solo escribieron espacios."},
+ {t:"if", q:"isset($x) devuelve true cuando…", o:["$x existe y no es null","$x es mayor que 0","$x no está vacía","$x es un texto"], e:"OJO: isset(\"\") es true. Para vacíos compara con \"\" o usa trim."},
+ {t:"if", q:"La opción «Selecciona» tiene value=\"\". ¿Con qué la comparas para saber si no se eligió nada?", o:['if ($nota == "")','if ($nota == "Selecciona")','if ($nota = "")','if (isset($nota))'], e:"Sé coherente: value=\"0\" → compara con 0; value=\"\" → compara con \"\". Mezclarlos funciona en PHP 7.4 (XAMPP de clase) pero falla en PHP 8."},
+ {t:"if", q:"Mayor de 3 (3A del profe): tras if ($n1>$n2 and $n1>$n3) ... ¿qué basta poner en el elseif?", o:["elseif ($n2 > $n3)","elseif ($n2 > $n1 and $n2 > $n3 and $n1 < $n3)","elseif ($n3 > $n1)","else if ($n1 == $n2)"], e:"Si llegamos ahí ya sabemos que $n1 NO es el mayor."},
+
+ {t:"switch", q:"¿Qué pasa si en un switch olvidas el break?", o:["Se ejecutan también los case siguientes","Error de sintaxis","No se ejecuta nada","Solo se ejecuta default"], e:"Por eso se pueden agrupar case 7: case 8: ..."},
+ {t:"switch", q:"¿Cómo haces que 7 y 8 den «Notable»?", o:['case 7: case 8: print "Notable"; break;','case 7, 8: ...','case 7 or 8: ...','case (7 && 8): ...'], e:"Casos agrupados, como en el 4B."},
+ {t:"switch", q:"¿Para qué sirve default en un switch?", o:["Se ejecuta si no coincide ningún case","Es el primer case","Es obligatorio","Repite el switch"], e:"Es opcional."},
+ {t:"switch", q:"La letra del DNI se calcula con…", o:["El resto de dividir el DNI entre 23","El resto de dividir entre 22","DNI / 23 redondeado","La suma de las cifras"], e:"$resto = $dni % 23;"},
+ {t:"switch", q:"Si $dni % 23 vale 0, la letra es…", o:["T","E","A","R"], e:"TRWAGMYFPDXBNJZSQVHLCKE → T es 0, E es 22."},
+ {t:"switch", q:"round(6.5), floor(6.5), ceil(6.1) dan…", o:["7, 6, 7","6, 6, 7","7, 7, 6","6, 7, 7"], e:"round = más cercano, floor = abajo, ceil = arriba."},
+ {t:"switch", q:"(int)(6.9) vale…", o:["6","7","6.9","0"], e:"(int) corta los decimales, no redondea."},
+ {t:"switch", q:"Media 6.6. Con round sale ___ y con (int) sale ___", o:["7 (Notable) y 6 (Bien)","6 y 6","7 y 7","6 (Bien) y 7 (Notable)"], e:"Por eso no es lo mismo round que (int). El profe usó round."},
+
+ {t:"Fecha", q:"$fecha = getdate(); ¿cómo sacas la hora?", o:['$fecha["hours"]','$fecha["hora"]','$fecha.hours','getdate("H")'], e:"También [\"minutes\"] y [\"seconds\"]."},
+ {t:"Fecha", q:'str_pad($min, 2, "0", STR_PAD_LEFT) con $min = 5 da…', o:['"05"','"50"','"5"','"005"'], e:"Rellena con 0 por la izquierda hasta 2 caracteres."},
+ {t:"Fecha", q:'<meta http-equiv="refresh" content="1;url=reloj.php"> sirve para…', o:["Recargar reloj.php cada 1 segundo","Enviar el formulario","Ejecutar PHP en el navegador","Cambiar el charset"], e:"Es HTML, no PHP. Hace que el reloj del 3D se actualice."},
+
+ {t:"Bucles", q:"¿Qué bucle se ejecuta SIEMPRE al menos una vez?", o:["do…while","while","for","Ninguno"], e:"do…while comprueba la condición al final."},
+ {t:"Bucles", q:"for ($i = 1; $i <= 50; $i++) ¿cuántas vueltas da?", o:["50","49","51","Infinitas"], e:"De 1 a 50 incluidos."},
+ {t:"Bucles", q:"Pares del 100 al 0 (5B-3):", o:["for ($i = 100; $i >= 0; $i -= 2)","for ($i = 100; $i <= 0; $i -= 2)","for ($i = 0; $i <= 100; $i += 2)","for ($i = 100; $i > 0; $i++)"], e:"La 3ª va del 0 al 100: al revés de lo que pide el enunciado."},
+ {t:"Bucles", q:"$i = 1; while ($i <= 5) { echo $i; } ¿Qué pasa?", o:["Bucle infinito: nunca se incrementa $i","Imprime 12345","No imprime nada","Error de sintaxis"], e:"En while el incremento lo pones tú dentro."},
+ {t:"Bucles", q:"Para saber si $n es par:", o:["$n % 2 == 0","$n / 2 == 0","$n % 2 == 1","$n == 2"], e:"Resto 0 al dividir entre 2."},
+ {t:"Bucles", q:"Para ver si un número es primo se divide entre 2 y los siguientes hasta…", o:["Su raíz cuadrada: sqrt($n)","El propio número siempre","10","La mitad redondeada hacia arriba siempre"], e:"Lo dice el enunciado del 5B-5."},
+ {t:"Bucles", q:"En el 5A opcional, name='cant$lista' dentro de un for de 1 a 3 genera…", o:["cant1, cant2, cant3","cant$lista tres veces","cantlista","Error"], e:"Las comillas dobles sustituyen la variable."},
+ {t:"Bucles", q:"Triángulo de asteriscos con UN solo * en el código. ¿Qué técnica?", o:['Ir acumulando: $linea .= "*"; y mostrar $linea en cada vuelta','Escribir 10 echo','Usar un switch','Usar str_pad'], e:"Acumulador de texto con .="},
+ {t:"Bucles", q:"Para separar con comas SIN coma al final (1, 2, ... 100):", o:['Dentro del for: echo $i; if ($i < 100) echo ", ";','echo "$i, "; siempre','Usar do…while sí o sí','Es imposible'], e:"Solo pones la coma si no es el último."},
+];
+
+/* ======================= ¿QUÉ IMPRIME? ======================= */
+const OUT = [
+ {c:R`$a = 7; $b = 2;
+echo $a % $b;`, a:"1"},
+ {c:R`$a = 7; $b = 2;
+echo $a / $b;`, a:"3.5"},
+ {c:R`$n = "Ana";
+echo 'Hola $n';`, a:"Hola $n", e:"Comillas simples: no sustituye."},
+ {c:R`$n = "Ana";
+echo "Hola $n";`, a:"Hola Ana"},
+ {c:R`$var1 = 5;
+echo "La variable \$var1 vale $var1";`, a:"La variable $var1 vale 5"},
+ {c:R`$x = "a";
+$x .= "b";
+$x .= "c";
+echo $x;`, a:"abc"},
+ {c:R`echo 2 + 3 * 4;`, a:"14", e:"Primero la multiplicación."},
+ {c:R`$x = 5;
+$x++;
+$x += 10;
+echo $x;`, a:"16"},
+ {c:R`$v = 3;
+echo "Valor: " . $v * 2;`, a:"Valor: 6"},
+ {c:R`echo round(3.5), floor(3.9), ceil(3.1);`, a:"434", e:"4, 3 y 4 seguidos (echo con comas no mete espacios)."},
+ {c:R`echo (int)(9.99);`, a:"9"},
+ {c:R`echo str_pad(7, 2, "0", STR_PAD_LEFT);`, a:"07"},
+ {c:R`$a = 5; $b = 3;
+if ($a > $b and $b > 4) {
+    echo "SI";
+} else {
+    echo "NO";
+}`, a:"NO", e:"$b > 4 es falso y con and tienen que cumplirse las dos."},
+ {c:R`$a = "";
+if (!$a) {
+    echo "vacío";
+} else {
+    echo "lleno";
+}`, a:"vacío"},
+ {c:R`$nombre = "   ";
+if (trim($nombre) == "") {
+    echo "X";
+} else {
+    echo "Y";
+}`, a:"X"},
+ {c:R`$h = 13;
+if ($h < 7) { echo "durmiendo"; }
+elseif ($h < 12) { echo "días"; }
+elseif ($h < 20) { echo "tardes"; }
+else { echo "noches"; }`, a:"tardes"},
+ {c:R`$n = 6;
+switch ($n) {
+    case 5:
+    case 6:
+        echo "A";
+    case 7:
+        echo "B";
+        break;
+    default:
+        echo "C";
+}`, a:"AB", e:"Falta el break después de echo \"A\" → sigue con el case 7."},
+ {c:R`$dni = 12345678;
+echo $dni % 23;`, a:"14", e:"14 → letra Z (12345678Z)."},
+ {c:R`$i = 1;
+while ($i <= 5) {
+    echo $i;
+    $i += 2;
+}`, a:"135"},
+ {c:R`for ($i = 10; $i > 0; $i -= 3) {
+    echo $i, " ";
+}`, a:"10 7 4 1"},
+ {c:R`$i = 10;
+do {
+    echo $i;
+    $i++;
+} while ($i < 5);`, a:"10", e:"do…while se ejecuta al menos una vez."},
+ {c:R`$s = "";
+for ($i = 1; $i <= 4; $i++) {
+    $s .= "*";
+}
+echo $s;`, a:"****"},
+ {c:R`$s = "";
+for ($i = 5; $i >= 1; $i--) {
+    $s .= $i;
+}
+echo $s;`, a:"54321"},
+ {c:R`$t = 0;
+for ($i = 1; $i <= 4; $i++) {
+    $t += $i;
+}
+echo $t;`, a:"10", e:"1+2+3+4"},
+ {c:R`$c = 0;
+for ($i = 1; $i <= 12; $i++) {
+    if (12 % $i == 0) {
+        $c++;
+    }
+}
+echo $c;`, a:"6", e:"Divisores de 12: 1, 2, 3, 4, 6, 12."},
+ {c:R`$a = 1; $b = 1;
+for ($i = 3; $i <= 6; $i++) {
+    $c = $a + $b;
+    $a = $b;
+    $b = $c;
+}
+echo $b;`, a:"8", e:"1, 1, 2, 3, 5, 8 → el 6º es 8."},
+ {c:R`for ($l = 1; $l <= 2; $l++) {
+    for ($i = 1; $i <= 3; $i++) {
+        echo $i;
+    }
+    echo "-";
+}`, a:"123-123-"},
+ {c:R`$n = 9;
+$primo = true;
+for ($d = 2; $d <= sqrt($n); $d++) {
+    if ($n % $d == 0) {
+        $primo = false;
+    }
+}
+if ($primo) { echo "primo"; } else { echo "no primo"; }`, a:"no primo", e:"9 % 3 == 0."},
+ {c:R`$nombre = "Pepe";
+$nombre .= ' ' . "Ruiz" . ' ' . "Gil";
+echo $nombre;`, a:"Pepe Ruiz Gil"},
+ {c:R`$dire = "Gran Vía 1";
+$cp = "48001";
+$dire = $dire . '-' . $cp;
+echo $dire;`, a:"Gran Vía 1-48001"},
+];
+
+/* ======================= COMPLETA EL HUECO ======================= */
+const FILL = [
+ {c:R`$nombre_completo = $nombre ___ " " . $apellido;`, a:["."], h:"Operador de concatenación"},
+ {c:R`// el formulario tiene method="post"
+$edad = filter_input(___, "edad");`, a:["INPUT_POST"]},
+ {c:R`for ($i = 1; $i <= 10; ___) {
+    echo $i;
+}`, a:["$i++","$i+=1","$i=$i+1","++$i"]},
+ {c:R`if ($n ___ 2 == 0) {
+    echo "par";
+}`, a:["%"]},
+ {c:R`print <<<FIN
+<p>Hola $nombre</p>
+___`, a:["FIN;"]},
+ {c:R`switch ($media) {
+    case 7:
+    case 8:
+        print "Notable";
+        ___;
+    case 9:
+        ...`, a:["break"]},
+ {c:R`$resto = $dni % ___;`, a:["23"]},
+ {c:R`$fecha = getdate();
+$hora = $fecha[___];`, a:[`"hours"`,`'hours'`]},
+ {c:R`$min = str_pad($min, 2, "0", ___);`, a:["STR_PAD_LEFT"]},
+ {c:R`if (___($nombre) == "") {
+    print "<h3 class='fallo'>Debes indicar tu nombre</h3>";
+}`, a:["trim"]},
+ {c:R`<input type="text" name="cp" size="4" ___="5" />`, a:["maxlength"]},
+ {c:R`<form method="get" ___="ejercicio2A.php">`, a:["action"]},
+ {c:R`$i = 1;
+do {
+    echo "<option value='$i'>$i</option>";
+    $i += 1;
+} ___ ($i <= 50);`, a:["while"]},
+ {c:R`$primo = ___;   // suponemos que es primo hasta encontrar un divisor`, a:["true"]},
+ {c:R`$raiz = ___($numero);`, a:["sqrt"]},
+ {c:R`// pares del 100 al 0
+for ($i = 100; $i >= 0; ___) {
+    echo "$i ";
+}`, a:["$i-=2","$i=$i-2"]},
+ {c:R`// mostrar literalmente "$var1"
+print "Contenido de la variable ___var1: $var1";`, a:[R`\$`]},
+ {c:R`$enviar = filter_input(INPUT_POST, "enviar");
+if (___($enviar)) {
+    // procesar
+}`, a:["isset"]},
+ {c:R`<select name="estudios">
+  <___ label="Informática y Comunicaciones">
+    <option value="ASIR">Administración de Sistemas...</option>`, a:["optgroup"]},
+ {c:R`$linea = "";
+for ($i = 1; $i <= 10; $i++) {
+    $linea ___ "*";
+    print "<p>$linea</p>";
+}`, a:[".="]},
+ {c:R`if ($n1 == $n2 ___ $n1 == $n3 ___ $n2 == $n3) {
+    print "Valores repetidos";
+}  // escribe la palabra que va en los dos huecos`, a:["or","||"]},
+ {c:R`$media = ___(($n1 + $n2 + $n3) / 3);   // redondear al más cercano`, a:["round"]},
+ {c:R`<textarea name="comentarios" ___="10" cols="40"></textarea>`, a:["rows"]},
+ {c:R`<input type="___" value="Limpiar" />   <!-- borra el formulario -->`, a:["reset"]},
+];
+
+/* ======================= ENCUENTRA EL ERROR ======================= */
+const ERR = [
+ {c:R`<!-- formulario -->
+<form method="post" action="resultado.php">
+  <input type="text" name="nombre" />
+...
+<?php // resultado.php
+$nombre = filter_input(INPUT_GET, "nombre");
+print "Hola $nombre";`, a:"El formulario usa POST pero el PHP recoge con INPUT_GET → $nombre vale null. Tienen que coincidir: INPUT_POST."},
+ {c:R`if ($n1 = $n2 or $n1 = $n3 or $n2 = $n3) {
+    print "Valores repetidos";
+}`, a:"Se usa = (asignar) en vez de == (comparar). Siempre entra en el if. Correcto: $n1 == $n2 or ..."},
+ {c:R`$nombre = "Pepe";
+echo "Hola " $nombre;`, a:"Falta el operador de concatenación: echo \"Hola \" . $nombre;  (o echo \"Hola $nombre\";)"},
+ {c:R`print <<<FIN
+<p>Total: $total</p>
+fin;`, a:"El identificador de cierre tiene que ser exactamente igual: FIN; (distingue mayúsculas)."},
+ {c:R`for ($i = 1; $i <= 10; $i--) {
+    echo $i;
+}`, a:"$i-- hace que $i baje: 1, 0, -1... siempre es <= 10 → bucle infinito. Debe ser $i++."},
+ {c:R`$i = 1;
+while ($i <= 50) {
+    echo "<option value='$i'>$i</option>";
+}`, a:"Falta incrementar $i dentro del while ($i++ o $i += 1) → bucle infinito."},
+ {c:R`switch ($media) {
+    case 5:
+        $txt = "Suficiente";
+    case 6:
+        $txt = "Bien";
+        break;
+}`, a:"Falta break en el case 5: con media 5 sigue al case 6 y $txt acaba valiendo \"Bien\"."},
+ {c:R`<!-- HTML -->
+<input type="text" name="ape1" />
+<?php
+$apellido1 = filter_input(INPUT_GET, "apellido1");`, a:"El name del HTML es \"ape1\" pero el PHP busca \"apellido1\" → llega null. El 2º parámetro de filter_input es el name exacto."},
+ {c:R`$total = 25;
+echo 'Total: $total euros';`, a:"Con comillas simples no se sustituye la variable: saldría «Total: $total euros». Usa comillas dobles."},
+ {c:R`$media = $n1 + $n2 + $n3 / 3;`, a:"Faltan paréntesis: solo divide $n3 entre 3. Correcto: $media = ($n1 + $n2 + $n3) / 3;"},
+ {c:R`$nombre = "Pepe"
+$apellido = "Ruiz";`, a:"Falta el ; en la primera línea. PHP avisa del error en la línea SIGUIENTE (unexpected variable)."},
+ {c:R`<!-- Ejercicio2A.html -->
+<form action="resultadoA.php" method="get">
+...
+<!-- pero el fichero PHP se llama resultado2A.php -->`, a:"El action no coincide con el nombre del fichero → Not Found (404). Revisa también mayúsculas/minúsculas."},
+ {c:R`$texto = "Hola " + $nombre;`, a:"+ es para sumar números (con textos da aviso/error y un resultado sin sentido). Para unir textos se usa el punto: \"Hola \" . $nombre"},
+ {c:R`// pares del 100 al 0
+for ($i = 100; $i <= 0; $i -= 2) {
+    echo "$i, ";
+}`, a:"La condición $i <= 0 es falsa desde el principio (100 no es <= 0) → no imprime nada. Debe ser $i >= 0."},
+ {c:R`$var1 = 5;
+print "Contenido de la variable $var1: $var1";
+// se quería ver:  Contenido de la variable $var1: 5`, a:"El primer $var1 también se sustituye y sale «...variable 5: 5». Hay que escaparlo: \\$var1."},
+ {c:R`<option value=""> --- Selecciona nota --- </option>
+...
+if ($aso == 0 or $iaw == 0) {
+    print "Faltan notas";
+}`, a:"El value de «Selecciona» es \"\" y se compara con 0. En PHP 7.4 (XAMPP de clase) cuela porque \"\" == 0 es true, pero en PHP 8 es false y no detecta la falta. Sé coherente: value=\"0\" → == 0, value=\"\" → == \"\"."},
+ {c:R`$fecha = getdate();
+$hora = $fecha["hora"];`, a:"La clave correcta es \"hours\" (en inglés): $fecha[\"hours\"], [\"minutes\"], [\"seconds\"]."},
+ {c:R`if ($nombre == "") {
+    $faltan .= "Nombre, ";
+} elseif ($cp == "") {
+    $faltan .= "CP, ";
+} elseif ($estudios == "0") {
+    $faltan .= "Estudios, ";
+}`, a:"Con elseif solo apunta el PRIMER dato que falta. Para listarlos todos (3C) tienen que ser if independientes. Además hay que inicializar $faltan = \"\" antes."},
+];
+
+/* ======================= EJERCICIOS TIPO EXAMEN ======================= */
+const EX = [
+ {t:"Formularios + switch", n:"Calculadora", en:`Formulario (calculadora.html, método GET) con dos cuadros de texto (<code>n1</code>, <code>n2</code>) y una lista <code>op</code> con: «--- Selecciona operación ---» (value 0), Suma, Resta, Multiplicación, División y Resto. Botones Calcular y Limpiar.<br>El PHP muestra <i>n1 signo n2 = resultado</i>. Si falta algún dato → mensaje en rojo. Si la operación es división o resto y n2 es 0 → «No se puede dividir entre 0» en rojo. Enlace para volver.`,
+ p:"Usa un switch para la operación y guarda el signo en una variable para mostrarlo.",
+ s:R`<!-- calculadora.html -->
+<form method="get" action="calculadora.php">
+  <h1>Calculadora</h1>
+  <fieldset>
+    <p><label>Primera cantidad: <input type="text" name="n1" /></label></p>
+    <p><label>Segunda cantidad: <input type="text" name="n2" /></label></p>
+    <p><label>Operación:
+      <select size="1" name="op">
+        <option value="0"> --- Selecciona operación --- </option>
+        <option value="s">Suma</option>
+        <option value="r">Resta</option>
+        <option value="m">Multiplicación</option>
+        <option value="d">División</option>
+        <option value="o">Resto</option>
+      </select>
+    </label></p>
+    <p><input type="submit" value="Calcular" /> <input type="reset" value="Limpiar" /></p>
+  </fieldset>
+</form>
+
+<?php // calculadora.php
+  $n1 = filter_input(INPUT_GET, "n1");
+  $n2 = filter_input(INPUT_GET, "n2");
+  $op = filter_input(INPUT_GET, "op");
+
+  if (trim($n1) == "" or trim($n2) == "" or $op == "0") {
+      print "<h3 class='fallo'>Faltan datos</h3>";
+  } elseif (($op == "d" or $op == "o") and $n2 == 0) {
+      print "<h3 class='fallo'>No se puede dividir entre 0</h3>";
+  } else {
+      switch ($op) {
+          case "s": $rdo = $n1 + $n2; $signo = "+"; break;
+          case "r": $rdo = $n1 - $n2; $signo = "-"; break;
+          case "m": $rdo = $n1 * $n2; $signo = "*"; break;
+          case "d": $rdo = $n1 / $n2; $signo = "/"; break;
+          case "o": $rdo = $n1 % $n2; $signo = "%";
+      }
+      print "<h3>$n1 $signo $n2 = <b>$rdo</b></h3>";
+  }
+  print "<p><a href='calculadora.html'>&lt;&lt;&lt; Volver</a></p>";
+?>`},
+
+ {t:"Formularios + if", n:"¿Mayor de edad?", en:`Formulario con <code>nombre</code> (texto) y <code>edad</code> (number). Respuesta:<ul class="en"><li>Falta el nombre → «Debes indicar tu nombre» (rojo)</li><li>Falta la edad → «<b>Nombre</b>: falta la edad» (rojo)</li><li>Menos de 18 → «Nombre, eres menor de edad»</li><li>18 a 64 → «Nombre, eres mayor de edad»</li><li>65 o más → «Nombre, estás jubilado/a»</li></ul>`,
+ p:"Validaciones en cascada como el 4B: primero nombre, luego edad, luego el resultado.",
+ s:R`<?php
+  $nombre = filter_input(INPUT_GET, "nombre");
+  $edad = filter_input(INPUT_GET, "edad");
+
+  if (trim($nombre) == "") {
+      print "<h3 class='fallo'>Debes indicar tu nombre</h3>";
+  } elseif (trim($edad) == "") {
+      print "<h3 class='fallo'><b>$nombre</b>: falta la edad</h3>";
+  } elseif ($edad < 18) {
+      print "<h3>$nombre, eres menor de edad</h3>";
+  } elseif ($edad < 65) {
+      print "<h3>$nombre, eres mayor de edad</h3>";
+  } else {
+      print "<h3>$nombre, estás jubilado/a</h3>";
+  }
+?>`},
+
+ {t:"switch", n:"Día de la semana", en:`Cuadro de texto donde se teclea un número del 1 al 7. Mostrar el nombre del día (1 = Lunes). Si es 6 o 7 añadir debajo «¡Fin de semana!». Si es otro número → «Día no válido» en rojo.`,
+ p:"Casos agrupados para sábado y domingo, y default para el resto.",
+ s:R`<?php
+  $dia = filter_input(INPUT_GET, "dia");
+
+  switch ($dia) {
+      case 1: print "<h3>Lunes</h3>"; break;
+      case 2: print "<h3>Martes</h3>"; break;
+      case 3: print "<h3>Miércoles</h3>"; break;
+      case 4: print "<h3>Jueves</h3>"; break;
+      case 5: print "<h3>Viernes</h3>"; break;
+      case 6:
+      case 7:
+          if ($dia == 6) {
+              print "<h3>Sábado</h3>";
+          } else {
+              print "<h3>Domingo</h3>";
+          }
+          print "<p>¡Fin de semana!</p>";
+          break;
+      default:
+          print "<h3 class='fallo'>Día no válido</h3>";
+  }
+?>`},
+
+ {t:"Bucles + mismo fichero", n:"Tabla de multiplicar (un solo fichero)", en:`Un único <code>tabla.php</code> con un formulario (POST) que pide un número. Al pulsar «Ver tabla» se muestra debajo, en un fieldset con legend «Tabla del N», la tabla del 1 al 10. Si se pulsa sin escribir nada → «Introduce un número» en rojo.`,
+ p:"El submit con name=\"enviar\" + isset($enviar).",
+ s:R`<form method="post" action="tabla.php">
+  <fieldset>
+    <legend>Introduce un número</legend>
+    <p><input type="text" name="numero" /></p>
+    <p><input type="submit" name="enviar" value="Ver tabla" /></p>
+  </fieldset>
+</form>
+<?php
+  $enviar = filter_input(INPUT_POST, "enviar");
+  if (isset($enviar)) {
+      $numero = filter_input(INPUT_POST, "numero");
+      if (trim($numero) == "") {
+          print "<p class='fallo'>Introduce un número</p>";
+      } else {
+          print "<fieldset><legend>Tabla del $numero</legend>";
+          for ($i = 1; $i <= 10; $i++) {
+              $rdo = $numero * $i;
+              print "<p>$numero x $i = $rdo</p>";
+          }
+          print "</fieldset>";
+      }
+  }
+?>`},
+
+ {t:"Bucles", n:"Suma y media del 1 al N", en:`Se teclea un número N. Mostrar los números del 1 al N separados por « + » (sin signo al final), el resultado de la suma y la media (suma / N) redondeada con <code>round</code>. Ej: N=4 → <code>1 + 2 + 3 + 4 = 10</code> · Media: 3`,
+ p:"Acumulador $suma = 0; y el truco de la coma: solo pones \" + \" si $i < $n.",
+ s:R`<?php
+  $n = filter_input(INPUT_GET, "n");
+  $suma = 0;
+  for ($i = 1; $i <= $n; $i++) {
+      print $i;
+      if ($i < $n) {
+          print " + ";
+      }
+      $suma += $i;
+  }
+  $media = round($suma / $n);
+  print " = <b>$suma</b><br />";
+  print "Media: <b>$media</b>";
+?>`},
+
+ {t:"Bucles", n:"Factorial", en:`Se teclea un número N y se muestra su factorial. Ej: 5 → <code>5! = 5 x 4 x 3 x 2 x 1 = 120</code>. Usa un <b>while</b>.`,
+ p:"Acumulador de producto: empieza en 1 (no en 0).",
+ s:R`<?php
+  $n = filter_input(INPUT_GET, "n");
+  $fact = 1;
+  $i = $n;
+  print "$n! = ";
+  while ($i >= 1) {
+      $fact = $fact * $i;
+      print $i;
+      if ($i > 1) {
+          print " x ";
+      }
+      $i--;
+  }
+  print " = <b>$fact</b>";
+?>`},
+
+ {t:"Bucles", n:"Cuenta atrás", en:`Mostrar en un fieldset los números del N (tecleado) al 0 separados por comas, sin coma al final, y al final «¡DESPEGUE!». Hazlo con <b>do…while</b>.`,
+ p:"Igual que el 5B-3 pero bajando de 1 en 1.",
+ s:R`<?php
+  $n = filter_input(INPUT_GET, "n");
+  print "<fieldset><legend>Cuenta atrás</legend><p>";
+  $i = $n;
+  do {
+      print $i;
+      if ($i > 0) {
+          print ", ";
+      }
+      $i--;
+  } while ($i >= 0);
+  print "</p><h3>¡DESPEGUE!</h3></fieldset>";
+?>`},
+
+ {t:"Bucles anidados", n:"Triángulo invertido", en:`Mostrar 10 filas: la primera con 10 asteriscos y cada fila uno menos, hasta 1. <b>Solo puede haber un asterisco en todo el código</b>.`,
+ p:"Un for de filas (10 → 1) y dentro otro for que pinta tantos * como el número de la fila.",
+ s:R`<?php
+  for ($fila = 10; $fila >= 1; $fila--) {
+      print "<p>";
+      for ($i = 1; $i <= $fila; $i++) {
+          print "*";
+      }
+      print "</p>";
+  }
+?>`},
+
+ {t:"Bucles + formularios", n:"Lista de notas generada con bucles (como 5A opc. 2)", en:`Formulario <code>.php</code> con nombre y 3 listas (PROG, BD, IAW) con notas del 1 al 10, todas generadas con <b>un solo for exterior</b> (bucles anidados). El resultado calcula la media con <code>round</code> y muestra el texto con switch (Muy deficiente… Sobresaliente). Valida nombre y notas como en el 4B.`,
+ p:"name='$asig' dentro del for que recorre las asignaturas. Como no hay arrays, puedes hacer un for de 1 a 3 y un switch para el nombre de la asignatura.",
+ s:R`<!-- notas.php (formulario) -->
+<form method="get" action="media.php">
+  <fieldset>
+    <p><label>Nombre: <input type="text" name="nombre" /></label></p>
+    <?php
+      for ($a = 1; $a <= 3; $a++) {
+          switch ($a) {
+              case 1: $asig = "PROG"; break;
+              case 2: $asig = "BD"; break;
+              case 3: $asig = "IAW";
+          }
+          print "<p><label>$asig: <select size='1' name='$asig'>";
+          print "<option value='0'>--- Selecciona nota ---</option>";
+          for ($i = 1; $i <= 10; $i++) {
+              print "<option value='$i'>$i</option>";
+          }
+          print "</select></label></p>";
+      }
+    ?>
+    <p><input type="submit" value="Calcular media" /></p>
+  </fieldset>
+</form>
+
+<?php // media.php
+  $nombre = filter_input(INPUT_GET, "nombre");
+  if (trim($nombre) == "") {
+      print "<h3 class='fallo'>Debes indicar tu nombre</h3>";
+  } else {
+      $prog = filter_input(INPUT_GET, "PROG");
+      $bd = filter_input(INPUT_GET, "BD");
+      $iaw = filter_input(INPUT_GET, "IAW");
+      if ($prog == 0 or $bd == 0 or $iaw == 0) {
+          print "<h3 class='fallo'><b>$nombre :</b> Faltan notas por seleccionar</h3>";
+      } else {
+          $media = round(($prog + $bd + $iaw) / 3);
+          switch ($media) {
+              case 1: case 2: $txt = "Muy deficiente"; break;
+              case 3: $txt = "Deficiente"; break;
+              case 4: $txt = "Insuficiente"; break;
+              case 5: $txt = "Suficiente"; break;
+              case 6: $txt = "Bien"; break;
+              case 7: case 8: $txt = "Notable"; break;
+              case 9: case 10: $txt = "Sobresaliente";
+          }
+          print "<h2>Hola $nombre!!</h2><h3>$media -&gt; $txt</h3>";
+      }
+  }
+?>`},
+
+ {t:"switch", n:"Letra del DNI con validación", en:`Formulario con DNI (size 8, maxlength 8). Si está vacío → «Falta el DNI» en rojo. Si no, mostrar <code>12345678-Z</code>.`,
+ p:"$resto = $dni % 23; y el switch de 23 casos (TRWAGMYFPDXBNJZSQVHLCKE).",
+ s:R`<!-- <input type="text" name="dni" size="8" maxlength="8" /> -->
+<?php
+  $dni = filter_input(INPUT_GET, "dni");
+  if (trim($dni) == "") {
+      print "<h3 class='fallo'>Falta el DNI</h3>";
+  } else {
+      $resto = $dni % 23;
+      switch ($resto) {
+          case 0: $letra = "T"; break;   case 1: $letra = "R"; break;
+          case 2: $letra = "W"; break;   case 3: $letra = "A"; break;
+          case 4: $letra = "G"; break;   case 5: $letra = "M"; break;
+          case 6: $letra = "Y"; break;   case 7: $letra = "F"; break;
+          case 8: $letra = "P"; break;   case 9: $letra = "D"; break;
+          case 10: $letra = "X"; break;  case 11: $letra = "B"; break;
+          case 12: $letra = "N"; break;  case 13: $letra = "J"; break;
+          case 14: $letra = "Z"; break;  case 15: $letra = "S"; break;
+          case 16: $letra = "Q"; break;  case 17: $letra = "V"; break;
+          case 18: $letra = "H"; break;  case 19: $letra = "L"; break;
+          case 20: $letra = "C"; break;  case 21: $letra = "K"; break;
+          case 22: $letra = "E";
+      }
+      $dni = $dni . "-" . $letra;
+      print "<p><strong>DNI:</strong> $dni</p>";
+  }
+?>`},
+
+ {t:"Bucles anidados", n:"Primos del 1 al 100", en:`Mostrar en un fieldset todos los números primos entre 2 y 100 separados por espacios.`,
+ p:"Un for de 2 a 100; para cada número, la «bandera» $primo y un while hasta sqrt, como en el 5B-5.",
+ s:R`<?php
+  print "<fieldset><legend>Primos del 1 al 100</legend><p>";
+  for ($n = 2; $n <= 100; $n++) {
+      $primo = true;
+      $divisor = 2;
+      while ($divisor <= sqrt($n) and $primo) {
+          if ($n % $divisor == 0) {
+              $primo = false;
+          }
+          $divisor++;
+      }
+      if ($primo) {
+          print "$n ";
+      }
+  }
+  print "</p></fieldset>";
+?>`},
+
+ {t:"Bucles anidados", n:"Tabla de multiplicar completa en <table>", en:`Generar una tabla HTML de 10 x 10 donde cada celda tenga el producto fila x columna.`,
+ p:"for de filas → <tr>; dentro for de columnas → <td>.",
+ s:R`<?php
+  print "<table border='1'>";
+  for ($f = 1; $f <= 10; $f++) {
+      print "<tr>";
+      for ($c = 1; $c <= 10; $c++) {
+          $p = $f * $c;
+          print "<td>$p</td>";
+      }
+      print "</tr>";
+  }
+  print "</table>";
+?>`},
+
+ {t:"Bucles", n:"Contar pares e impares", en:`Se teclea un número N. Mostrar cuántos números pares y cuántos impares hay entre 1 y N, y la suma de los pares.`,
+ p:"Dos contadores y un acumulador. % 2 == 0 para saber si es par.",
+ s:R`<?php
+  $n = filter_input(INPUT_GET, "n");
+  $pares = 0;
+  $impares = 0;
+  $sumaPares = 0;
+  for ($i = 1; $i <= $n; $i++) {
+      if ($i % 2 == 0) {
+          $pares++;
+          $sumaPares += $i;
+      } else {
+          $impares++;
+      }
+  }
+  print <<<RDO
+  <p>Entre 1 y $n hay <b>$pares</b> pares y <b>$impares</b> impares.</p>
+  <p>La suma de los pares es <b>$sumaPares</b>.</p>
+RDO;
+?>`},
+
+ {t:"Validaciones", n:"Registro: listar lo que falta (como 3C)", en:`Formulario con nombre, apellido, ciudad (select con optgroup «País Vasco»: BI Bilbao, SS Donostia, VI Vitoria; y «Otras»: MA Madrid, BA Barcelona; primera opción value 0) y comentarios (opcional). Si faltan datos, listarlos TODOS en rojo; si no, mostrar el resumen en un fieldset con legend «Resumen:».`,
+ p:"$faltan = \"\"; + varios if (no elseif) con .=",
+ s:R`<?php
+  $nombre = filter_input(INPUT_GET, "nombre");
+  $apellido = filter_input(INPUT_GET, "apellido");
+  $ciudad = filter_input(INPUT_GET, "ciudad");
+  $coment = filter_input(INPUT_GET, "comentarios");
+
+  $faltan = "";
+  if (trim($nombre) == "")   { $faltan .= "Nombre "; }
+  if (trim($apellido) == "") { $faltan .= "Apellido "; }
+  if ($ciudad == "0")        { $faltan .= "Ciudad "; }
+
+  print "<fieldset><legend>Resumen:</legend>";
+  if ($faltan != "") {
+      print "<h3 class='fallo'>Faltan los siguientes datos:</h3>";
+      print "<p class='fallo'>$faltan</p>";
+      print "<a href='registro.html'>&lt;&lt;&lt; Volver</a>";
+  } else {
+      $nombre .= " " . $apellido;
+      print <<<RDOS
+      <p><b>Nombre completo:</b> $nombre</p>
+      <p><b>Ciudad:</b> $ciudad</p>
+      <p><b>Comentarios:</b> $coment</p>
+RDOS;
+  }
+  print "</fieldset>";
+?>`},
+
+ {t:"Fecha + if", n:"Horario del instituto", en:`Página que se refresca cada segundo y muestra la hora (hh:mm:ss con ceros) y un mensaje: de 0 a 7 «Durmiendo», de 8 a 14 «En clase», de 14 a 15 «Comiendo», de 15 a 21 «Estudiando PHP», resto «Descansando».`,
+ p:"getdate(), str_pad y meta refresh. Cuidado con los límites (>= y <).",
+ s:R`<!-- en el <head>: -->
+<meta http-equiv="refresh" content="1;url=horario.php">
+
+<?php
+  $fecha = getdate();
+  $hora = $fecha["hours"];
+  $min = str_pad($fecha["minutes"], 2, "0", STR_PAD_LEFT);
+  $seg = str_pad($fecha["seconds"], 2, "0", STR_PAD_LEFT);
+
+  if ($hora < 8) {
+      $msg = "Durmiendo";
+  } elseif ($hora < 14) {
+      $msg = "En clase";
+  } elseif ($hora < 15) {
+      $msg = "Comiendo";
+  } elseif ($hora < 21) {
+      $msg = "Estudiando PHP";
+  } else {
+      $msg = "Descansando";
+  }
+  print "<h1>$msg</h1>";
+  print "<h3>$hora:$min:$seg</h3>";
+?>`},
+
+ {t:"if + validaciones", n:"Mayor y menor de 3 números", en:`Como el 3B, pero con listas del 1 al 20 generadas con bucles (una con for, otra con while, otra con do…while). Mostrar cuál es el mayor <b>y</b> cuál es el menor. Validar «faltan valores» y «valores repetidos» en rojo.`,
+ p:"Primero errores; luego un if/elseif para el mayor y otro if/elseif independiente para el menor.",
+ s:R`<?php
+  $n1 = filter_input(INPUT_GET, "cant1");
+  $n2 = filter_input(INPUT_GET, "cant2");
+  $n3 = filter_input(INPUT_GET, "cant3");
+
+  if ($n1 == 0 or $n2 == 0 or $n3 == 0) {
+      print "<h3 class='fallo'>Es necesario introducir los 3 valores</h3>";
+  } elseif ($n1 == $n2 or $n1 == $n3 or $n2 == $n3) {
+      print "<h3 class='fallo'>Valores repetidos</h3>";
+  } else {
+      if ($n1 > $n2 and $n1 > $n3) {
+          $mayor = $n1;
+      } elseif ($n2 > $n3) {
+          $mayor = $n2;
+      } else {
+          $mayor = $n3;
+      }
+      if ($n1 < $n2 and $n1 < $n3) {
+          $menor = $n1;
+      } elseif ($n2 < $n3) {
+          $menor = $n2;
+      } else {
+          $menor = $n3;
+      }
+      print "<h3>Mayor: $mayor · Menor: $menor</h3>";
+  }
+  print "<a href='Ejercicio.php'>&lt;&lt;&lt; Volver</a>";
+?>`},
+
+ {t:"Bucles", n:"Galería con nombre y número par/impar", en:`Como el 5B-0: mostrar <code>foto1.jpg</code> … <code>foto14.jpg</code> (ancho 500) en un fieldset; debajo de cada una su nombre y, si el número es par, el texto «(par)» en negrita.`,
+ p:"La variable dentro de la cadena: \"foto$i.jpg\".",
+ s:R`<fieldset>
+  <legend>Galería</legend>
+  <?php
+    for ($i = 1; $i <= 14; $i++) {
+        print "<p><img src='foto$i.jpg' width='500' /></p>";
+        print "<p>foto$i.jpg";
+        if ($i % 2 == 0) {
+            print " <b>(par)</b>";
+        }
+        print "</p>";
+    }
+  ?>
+</fieldset>`},
+
+ {t:"Básico + formularios", n:"Operaciones con heredoc (como 2A)", en:`Formulario con nombre y dos cantidades. Mostrar con <b>dos cadenas heredoc</b>: una con los valores de partida («Valores introducidos por Nombre») y otra con suma, resta, producto, división y resto. La segunda heredoc guárdala en una variable y muéstrala al final.`,
+ p:"Igual que el 1C del profe: print <<<RDO ... y $visualizar = <<<RDO ...",
+ s:R`<?php
+  $usuario = filter_input(INPUT_GET, "NombreUsuario");
+  $var1 = filter_input(INPUT_GET, "dato1");
+  $var2 = filter_input(INPUT_GET, "dato2");
+
+  print <<<EJ
+<h3>Valores introducidos por $usuario</h3>
+<p>Primer valor: <b>$var1</b><br />
+Segundo valor: <b>$var2</b></p>
+EJ;
+
+  $suma = $var1 + $var2;
+  $resta = $var1 - $var2;
+  $producto = $var1 * $var2;
+  $division = $var1 / $var2;
+  $resto = $var1 % $var2;
+
+  $visualizar = <<<EJ
+<h3>Resultado</h3>
+<p>$var1 + $var2 = <b>$suma</b><br />
+$var1 - $var2 = <b>$resta</b><br />
+$var1 * $var2 = <b>$producto</b><br />
+$var1 / $var2 = <b>$division</b><br />
+$var1 % $var2 = <b>$resto</b></p>
+EJ;
+  print $visualizar;
+?>`},
+];
+
+/* ======================= TARJETAS ======================= */
+const CARDS = [
+ ["¿Cómo se recoge un dato de un formulario GET?", R`$x = filter_input(INPUT_GET, "name");`],
+ ["¿Comillas dobles o simples para que se sustituya $var?", "Dobles. Las simples lo muestran tal cual."],
+ ["¿Cómo se muestra un $ literal dentro de comillas dobles?", R`Con \$  →  "\$var1"`],
+ ["Operador para unir textos", R`.   y   .=  (concatenar y asignar)`],
+ ["Sintaxis heredoc", R`print <<<RDO
+<p>Hola $nombre</p>
+RDO;`],
+ ["Diferencia echo / print", "echo admite varios valores separados por comas; print solo uno."],
+ ["% hace…", "El resto de la división. 7 % 2 = 1"],
+ ["round / floor / ceil / (int) de 3.6", "4 / 3 / 4 / 3"],
+ ["sqrt($n)", "Raíz cuadrada (número primo: dividir hasta la raíz)."],
+ ["GET vs POST", "GET: datos en la URL. POST: ocultos. En PHP: INPUT_GET / INPUT_POST."],
+ ["¿Qué se envía de un <select>?", "El value de la opción elegida (si no tiene value, su texto)."],
+ ["size vs maxlength", "size = ancho visible; maxlength = caracteres máximos."],
+ ["<textarea> 10 filas 40 columnas", R`<textarea name="c" rows="10" cols="40"></textarea>`],
+ ["optgroup", R`<optgroup label="Título"> ...options... </optgroup>`],
+ ["filter_input devuelve… (campo vacío / campo inexistente)", R`""  /  null`],
+ ["trim()", "Quita espacios al principio y al final. trim($x) == \"\" → vacío."],
+ ["isset($x)", "true si existe y no es null. ¡isset(\"\") es true!"],
+ ["= vs ==", "= asigna, == compara."],
+ ["and / or / !", "&& / || / negación"],
+ ["Orden de las validaciones", "1º faltan datos → 2º datos incorrectos (repetidos…) → 3º resultado"],
+ ["Listar TODOS los datos que faltan", R`$faltan = "";
+if (...) { $faltan .= "Nombre, "; }
+if (...) { $faltan .= "CP, "; }   // if independientes`],
+ ["Casos agrupados en switch", R`case 7:
+case 8:
+    print "Notable";
+    break;`],
+ ["Sin break en un case…", "sigue ejecutando el siguiente case."],
+ ["Letra DNI", "$dni % 23 → TRWAGMYFPDXBNJZSQVHLCKE (T=0, E=22)"],
+ ["Escala de notas", "1-2 Muy deficiente · 3 Deficiente · 4 Insuficiente · 5 Suficiente · 6 Bien · 7-8 Notable · 9-10 Sobresaliente"],
+ ["getdate()", R`$f = getdate();
+$f["hours"]  $f["minutes"]  $f["seconds"]`],
+ ["str_pad para 2 cifras", R`str_pad($min, 2, "0", STR_PAD_LEFT)`],
+ ["Refrescar página cada segundo", R`<meta http-equiv="refresh" content="1;url=pagina.php">`],
+ ["for", R`for ($i = 1; $i <= 50; $i++) { ... }`],
+ ["while", R`$i = 1;
+while ($i <= 50) { ...; $i++; }`],
+ ["do…while", R`$i = 1;
+do { ...; $i++; } while ($i <= 50);
+// se ejecuta al menos 1 vez`],
+ ["Comas sin coma final", R`echo $i;
+if ($i < 100) { echo ", "; }`],
+ ["Formulario que se envía a sí mismo", R`action="mismo.php" + <input type="submit" name="enviar">
+if (isset($enviar)) { ... }`],
+ ["Patrón «bandera»", R`$primo = true;
+... if ($n % $d == 0) { $primo = false; }
+if ($primo) { ... }`],
+ ["Fibonacci", R`$ant = 1; $act = 1;
+$sig = $ant + $act; $ant = $act; $act = $sig;`],
+];
+
+/* ======================= MOTOR ======================= */
+const KEY = "repasoPHP_IAW_v1";
+let st = {mcq:{}, out:{}, fill:{}, ex:{}};
+try { const raw = localStorage.getItem(KEY); if (raw) st = Object.assign(st, JSON.parse(raw)); } catch(e) {}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e) {} renderProg(); }
+
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+const KW = "if|elseif|else|switch|case|break|default|for|while|do|echo|print|and|or|true|false|isset|trim|filter_input|round|floor|ceil|sqrt|getdate|str_pad|INPUT_GET|INPUT_POST|STR_PAD_LEFT|int";
+const RE = new RegExp(String.raw`(\/\/[^\n]*|\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\\n])*')|(\$[A-Za-z_]\w*)|\b(${KW})\b|(<\/?[A-Za-z][^>\n]*>|<\?php|\?>|<<<\w+)`, "g");
+function hl(code){
+  let out = "", last = 0, m;
+  RE.lastIndex = 0;
+  while ((m = RE.exec(code))) {
+    out += esc(code.slice(last, m.index));
+    const cls = m[1] ? "c" : m[2] ? "s" : m[3] ? "v" : m[4] ? "k" : "t";
+    out += `<span class="${cls}">${esc(m[0])}</span>`;
+    last = RE.lastIndex;
+  }
+  return out + esc(code.slice(last));
+}
+const pre = c => `<pre><code>${hl(c)}</code></pre>`;
+function shuffle(a){ a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const norm = s => String(s).replace(/\s+/g, " ").trim();
+const tight = s => String(s).replace(/\s+/g, "");
+
+/* ---- navegación ---- */
+const nav = document.getElementById("nav");
+function show(id){
+  nav.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.s === id));
+  document.querySelectorAll("main section").forEach(s => s.classList.toggle("on", s.id === id));
+  try { localStorage.setItem(KEY + "_tab", id); } catch(e) {}
+  window.scrollTo(0, 0);
+}
+nav.addEventListener("click", e => { if (e.target.dataset.s) show(e.target.dataset.s); });
+try { const t = localStorage.getItem(KEY + "_tab"); if (t && document.getElementById(t)) show(t); } catch(e) {}
+
+/* ---- tema ---- */
+document.getElementById("theme").onclick = () => {
+  const r = document.documentElement;
+  const dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  r.dataset.theme = dark ? "light" : "dark";
+  try { localStorage.setItem(KEY + "_theme", r.dataset.theme); } catch(e) {}
+};
+try { const th = localStorage.getItem(KEY + "_theme"); if (th) document.documentElement.dataset.theme = th; } catch(e) {}
+
+/* ---- progreso ---- */
+function count(o){ const v = Object.values(o); return {done:v.length, ok:v.filter(x => x === true).length}; }
+function renderProg(){
+  const items = [
+    ["Test", count(st.mcq), MCQ.length],
+    ["¿Qué imprime?", count(st.out), OUT.length],
+    ["Completa", count(st.fill), FILL.length],
+    ["Ejercicios", {done:Object.values(st.ex).filter(Boolean).length, ok:Object.values(st.ex).filter(Boolean).length}, EX.length],
+  ];
+  document.getElementById("prog").innerHTML = items.map(([n, c, tot]) =>
+    `<div class="card"><div class="tag">${n}</div><div class="big">${c.ok}/${tot}</div>
+     <small style="color:var(--muted)">${c.done} respondidas</small>
+     <div class="meter"><i style="width:${Math.round(c.ok / tot * 100)}%"></i></div></div>`).join("");
+  const sc = (c, tot) => `Aciertos: ${c.ok}/${tot}`;
+  document.getElementById("outscore").textContent = sc(count(st.out), OUT.length);
+  document.getElementById("fillscore").textContent = sc(count(st.fill), FILL.length);
+  const ts = document.getElementById("testscore"); if (ts) ts.textContent = sc(count(st.mcq), MCQ.length);
+}
+document.getElementById("reset").onclick = () => {
+  if (confirm("¿Borrar todo tu progreso?")) { st = {mcq:{}, out:{}, fill:{}, ex:{}}; save(); renderTest(); renderOut(); renderFill(); renderEx(); }
+};
+
+/* ---- TEST ---- */
+let testTopic = "Todos", testOrder = MCQ.map((_, i) => i);
+function renderTest(){
+  const topics = ["Todos", ...new Set(MCQ.map(q => q.t))];
+  document.getElementById("testbar").innerHTML =
+    topics.map(t => `<button class="chip ${t === testTopic ? "on" : ""}" data-t="${t}">${t}</button>`).join("") +
+    `<button class="chip" data-shuffle="1">🔀 Barajar</button><span class="score" id="testscore"></span>`;
+  const list = testOrder.filter(i => testTopic === "Todos" || MCQ[i].t === testTopic);
+  document.getElementById("testlist").innerHTML = list.map((i, n) => {
+    const q = MCQ[i];
+    const opts = shuffle(q.o.map((o, k) => ({o, k})));
+    return `<div class="card" data-i="${i}"><span class="tag">${q.t}</span>
+      <div class="q">${n + 1}. ${esc(q.q)}</div>${q.c ? pre(q.c) : ""}
+      <div class="opts">${opts.map(x => `<button class="opt" data-k="${x.k}">${esc(x.o)}</button>`).join("")}</div>
+      <div class="exp">${esc(q.e || "")}</div></div>`;
+  }).join("");
+  renderProg();
+}
+document.getElementById("testbar").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.shuffle) testOrder = shuffle(testOrder); else testTopic = b.dataset.t;
+  renderTest();
+});
+document.getElementById("testlist").addEventListener("click", e => {
+  const b = e.target.closest(".opt"); if (!b || b.disabled) return;
+  const card = b.closest(".card"), i = +card.dataset.i, ok = b.dataset.k === "0";
+  card.querySelectorAll(".opt").forEach(o => { o.disabled = true; if (o.dataset.k === "0") o.classList.add("ok"); });
+  if (!ok) b.classList.add("bad");
+  const exp = card.querySelector(".exp");
+  exp.innerHTML = (ok ? "✅ <b>¡Correcto!</b> " : "❌ <b>No.</b> ") + esc(MCQ[i].e || "");
+  exp.classList.add("show");
+  st.mcq[i] = ok; save();
+});
+
+/* ---- QUÉ IMPRIME / COMPLETA (motor común) ---- */
+function renderInputs(listId, data, store, isFill){
+  document.getElementById(listId).innerHTML = data.map((d, i) => {
+    const prev = store[i];
+    return `<div class="card" data-i="${i}"><div class="q">${isFill ? "Completa" : "¿Qué se ve en pantalla?"} #${i + 1}</div>
+      ${pre(d.c)}
+      ${d.h ? `<small style="color:var(--muted)">Pista: ${esc(d.h)}</small>` : ""}
+      <div class="row"><input type="text" placeholder="${isFill ? "lo que va en ___" : "salida"}" autocomplete="off" spellcheck="false">
+      <button class="btn" data-a="check">Comprobar</button><button class="btn ghost" data-a="sol">Ver solución</button></div>
+      <div class="row"><span class="res ${prev === true ? "ok" : prev === false ? "bad" : ""}">${prev === true ? "✅ Ya acertada" : prev === false ? "❌ Fallada antes" : ""}</span></div>
+      <div class="exp"></div></div>`;
+  }).join("");
+}
+function bindInputs(listId, data, key, isFill){
+  const el = document.getElementById(listId);
+  const handle = (card, action) => {
+    const i = +card.dataset.i, d = data[i], inp = card.querySelector("input"), res = card.querySelector(".res"), exp = card.querySelector(".exp");
+    const answers = isFill ? d.a : [d.a];
+    const sol = answers[0];
+    if (action === "sol") {
+      exp.innerHTML = `Solución: <code>${esc(sol)}</code>${d.e ? " · " + esc(d.e) : ""}`;
+      exp.classList.add("show");
+      if (st[key][i] === undefined) { st[key][i] = false; save(); }
+      return;
+    }
+    const v = inp.value;
+    const ok = answers.some(a => isFill ? tight(a).toLowerCase() === tight(v).toLowerCase() : (norm(a) === norm(v) || tight(a) === tight(v)));
+    res.className = "res " + (ok ? "ok" : "bad");
+    res.textContent = ok ? "✅ ¡Correcto!" : "❌ Prueba otra vez o mira la solución";
+    if (ok) { exp.innerHTML = `Solución: <code>${esc(sol)}</code>${d.e ? " · " + esc(d.e) : ""}`; exp.classList.add("show"); }
+    if (ok || st[key][i] === undefined) { st[key][i] = ok; save(); }
+  };
+  el.addEventListener("click", e => { const b = e.target.closest("button[data-a]"); if (b) handle(b.closest(".card"), b.dataset.a); });
+  el.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.tagName === "INPUT") handle(e.target.closest(".card"), "check"); });
+}
+function renderOut(){ renderInputs("outlist", OUT, st.out, false); renderProg(); }
+function renderFill(){ renderInputs("filllist", FILL, st.fill, true); renderProg(); }
+bindInputs("outlist", OUT, "out", false);
+bindInputs("filllist", FILL, "fill", true);
+
+/* ---- ERRORES ---- */
+document.getElementById("errlist").innerHTML = ERR.map((d, i) =>
+  `<div class="card"><div class="q">Error #${i + 1}: ¿qué falla?</div>${pre(d.c)}
+   <details><summary>Ver solución</summary><div class="exp show">${esc(d.a)}</div></details></div>`).join("");
+
+/* ---- EJERCICIOS ---- */
+let exTopic = "Todos";
+function renderEx(){
+  const topics = ["Todos", ...new Set(EX.map(x => x.t))];
+  document.getElementById("exbar").innerHTML = topics.map(t => `<button class="chip ${t === exTopic ? "on" : ""}" data-t="${esc(t)}">${esc(t)}</button>`).join("");
+  document.getElementById("exlist").innerHTML = EX.map((x, i) => (exTopic !== "Todos" && x.t !== exTopic) ? "" :
+    `<div class="card"><span class="tag">${esc(x.t)}</span><h3>${i + 1}. ${esc(x.n)}</h3>
+     <div>${x.en}</div>
+     <details><summary>Pista</summary><div class="exp show">${esc(x.p)}</div></details>
+     <details><summary>Solución</summary>${pre(x.s)}</details>
+     <label class="done"><input type="checkbox" data-i="${i}" ${st.ex[i] ? "checked" : ""}> Lo he hecho yo solo/a</label></div>`).join("");
+  renderProg();
+}
+document.getElementById("exbar").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { exTopic = b.dataset.t; renderEx(); } });
+document.getElementById("exlist").addEventListener("change", e => { if (e.target.dataset.i !== undefined) { st.ex[e.target.dataset.i] = e.target.checked; save(); } });
+
+/* ---- TARJETAS ---- */
+let cardOrder = CARDS.map((_, i) => i), ci = 0;
+const flash = document.getElementById("flash");
+function looksCode(s){ return /[$;<{=]/.test(s) && /\n|\$|</.test(s); }
+function renderCard(){
+  const [f, b] = CARDS[cardOrder[ci]];
+  flash.classList.remove("flip");
+  flash.querySelector(".front").textContent = f;
+  flash.querySelector(".back").innerHTML = looksCode(b) ? pre(b) : `<p>${esc(b)}</p>`;
+  document.getElementById("fcount").textContent = `${ci + 1} / ${CARDS.length}`;
+}
+flash.onclick = () => flash.classList.toggle("flip");
+document.getElementById("next").onclick = () => { ci = (ci + 1) % CARDS.length; renderCard(); };
+document.getElementById("prev").onclick = () => { ci = (ci - 1 + CARDS.length) % CARDS.length; renderCard(); };
+document.getElementById("shuf").onclick = () => { cardOrder = shuffle(cardOrder); ci = 0; renderCard(); };
+document.addEventListener("keydown", e => {
+  if (!document.getElementById("cards").classList.contains("on") || e.target.tagName === "INPUT") return;
+  if (e.key === "ArrowRight") document.getElementById("next").click();
+  if (e.key === "ArrowLeft") document.getElementById("prev").click();
+  if (e.key === " ") { e.preventDefault(); flash.click(); }
+});
+
+renderTest(); renderOut(); renderFill(); renderEx(); renderCard(); renderProg();
+</script>
+</body>
+</html>
